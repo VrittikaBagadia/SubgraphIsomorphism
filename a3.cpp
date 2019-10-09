@@ -15,7 +15,7 @@ using namespace std;
 
 struct Node
 {
-	vector<int> adjList;
+	vector<int> adjList, outOFneighbour, inOFneighbour;
 	int inDegree=0;
 	int outDegree=0;
 };
@@ -67,6 +67,19 @@ void takeInput(string filename)
 			G[i] = newnode;
 		}
 	}
+	int temp;
+	for (int i=0; i<num_nodes_G; i++)
+	{
+		temp=G[i].adjList.size();
+		for (int j = 0; j < temp; ++j)
+		{
+			G[i].outOFneighbour.push_back(G[G[i].adjList[j]].outDegree);
+			G[i].inOFneighbour.push_back(G[G[i].adjList[j]].inDegree);
+		}
+		sort(G[i].outOFneighbour.begin(),G[i].outOFneighbour.end(),greater<int>());
+		sort(G[i].inOFneighbour.begin(),G[i].inOFneighbour.end(),greater<int>());
+	}
+
 	while (infile>>n1)
 	{
 		infile>>n2;
@@ -98,7 +111,32 @@ void takeInput(string filename)
 			g[i] = newnode;
 		}
 	}
+	for (int i=0; i<num_nodes_g; i++)
+	{
+		temp=g[i].adjList.size();
+		for (int j = 0; j < temp; ++j)
+		{
+			g[i].outOFneighbour.push_back(g[g[i].adjList[j]].outDegree);
+			g[i].inOFneighbour.push_back(g[g[i].adjList[j]].inDegree);
+		}
+		sort(g[i].outOFneighbour.begin(),g[i].outOFneighbour.end(),greater<int>());
+		sort(g[i].inOFneighbour.begin(),g[i].inOFneighbour.end(),greater<int>());
+	}
+
 	infile.close();
+}
+
+bool vector_compare(vector<int> a, vector<int> b)
+{
+	int temp=a.size();
+	for (int i = 0; i < temp; ++i)
+	{
+		if (a[i]>b[i])
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 void formMinisatInput(string filename)
@@ -125,7 +163,12 @@ void formMinisatInput(string filename)
 			}
 			// both i and j present in g and G resp.
 			if ((g[i].inDegree <= G[j].inDegree) && (g[i].outDegree <= G[j].outDegree))
-				matrix[i][j] = 1;
+			{
+				if( vector_compare(g[i].outOFneighbour,G[j].outOFneighbour)  && vector_compare(g[i].inOFneighbour,G[j].inOFneighbour))
+				{
+					matrix[i][j] = 1;
+				}
+			}
 		}
 	}
 	// cout<<"PRINT MATRIX\n";

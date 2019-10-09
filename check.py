@@ -22,10 +22,17 @@ def AddNode(G,a):
 	if(not(a[1] in G)):
 		G[a[1]]=[];
 
+def AddNode_ALL(G,a):
+	for x in range(1,a+1):
+		if (not(x in G)):
+			G[x]=[];
+
 def readGraph(fname):
 	f=open(fname);
 	G1=dict();
 	G2=dict();
+	G1_max=0;
+	G2_max=0;
 	chk=-1;
 	for lin in f.readlines():
 		l=lin.lstrip().rstrip();		
@@ -36,9 +43,19 @@ def readGraph(fname):
 			continue;
 		if(chk<0):
 			AddNode(G1,l);
+			if (l[0]>G1_max):
+				G1_max=l[0]
+			if (l[1]>G1_max):
+				G1_max=l[1]
 		else:
 			AddNode(G2,l);
+			if (l[0]>G2_max):
+				G2_max=l[0]
+			if (l[1]>G2_max):
+				G2_max=l[1]
 	f.close();
+	AddNode_ALL(G1,G1_max);
+	AddNode_ALL(G2,G2_max);
 	return [G1,G2];
 
 def readMap(fname):
