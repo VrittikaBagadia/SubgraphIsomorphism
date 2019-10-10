@@ -9,7 +9,7 @@ using namespace std;
 
 struct Node
 {
-	vector<int> adjList, outOFneighbour, inOFneighbour;
+	vector<int> adjList, outOFneighbour, inOFneighbour, addOFneighbour;
 	int inDegree=0;
 	int outDegree=0;
 };
@@ -64,14 +64,22 @@ void takeInput(string filename)
 	int temp;
 	for (int i=0; i<num_nodes_G; i++)
 	{
-		temp=G[i].adjList.size();
-		for (int j = 0; j < temp; ++j)
+		if(G[i].outDegree<=40 && G[i].inDegree<=40)
 		{
-			G[i].outOFneighbour.push_back(G[G[i].adjList[j]].outDegree);
-			G[i].inOFneighbour.push_back(G[G[i].adjList[j]].inDegree);
+			temp=G[i].adjList.size();
+			if(temp!=0)
+			{
+				for (int j = 0; j < temp; ++j)
+				{
+					G[i].outOFneighbour.push_back(G[G[i].adjList[j]].outDegree);
+					G[i].inOFneighbour.push_back(G[G[i].adjList[j]].inDegree);
+					G[i].addOFneighbour.push_back(G[G[i].adjList[j]].outDegree+G[G[i].adjList[j]].inDegree);
+				}
+				sort(G[i].outOFneighbour.begin(),G[i].outOFneighbour.end(),greater<int>());
+				sort(G[i].inOFneighbour.begin(),G[i].inOFneighbour.end(),greater<int>());
+				sort(G[i].addOFneighbour.begin(),G[i].addOFneighbour.end(),greater<int>());
+			}
 		}
-		sort(G[i].outOFneighbour.begin(),G[i].outOFneighbour.end(),greater<int>());
-		sort(G[i].inOFneighbour.begin(),G[i].inOFneighbour.end(),greater<int>());
 	}
 
 	while (infile>>n1)
@@ -107,14 +115,22 @@ void takeInput(string filename)
 	}
 	for (int i=0; i<num_nodes_g; i++)
 	{
-		temp=g[i].adjList.size();
-		for (int j = 0; j < temp; ++j)
+		if(g[i].inDegree<=20 && g[i].outDegree<=20)
 		{
-			g[i].outOFneighbour.push_back(g[g[i].adjList[j]].outDegree);
-			g[i].inOFneighbour.push_back(g[g[i].adjList[j]].inDegree);
+			temp=g[i].adjList.size();
+			if(temp!=0)
+			{
+				for (int j = 0; j < temp; ++j)
+				{
+					g[i].outOFneighbour.push_back(g[g[i].adjList[j]].outDegree);
+					g[i].inOFneighbour.push_back(g[g[i].adjList[j]].inDegree);
+					g[i].addOFneighbour.push_back(g[g[i].adjList[j]].outDegree+g[g[i].adjList[j]].inDegree);
+				}
+				sort(g[i].outOFneighbour.begin(),g[i].outOFneighbour.end(),greater<int>());
+				sort(g[i].inOFneighbour.begin(),g[i].inOFneighbour.end(),greater<int>());
+				sort(g[i].addOFneighbour.begin(),g[i].addOFneighbour.end(),greater<int>());
+			}
 		}
-		sort(g[i].outOFneighbour.begin(),g[i].outOFneighbour.end(),greater<int>());
-		sort(g[i].inOFneighbour.begin(),g[i].inOFneighbour.end(),greater<int>());
 	}
 
 	infile.close();
@@ -158,10 +174,16 @@ void formMinisatInput(string filename)
 			// both i and j present in g and G resp.
 			if ((g[i].inDegree <= G[j].inDegree) && (g[i].outDegree <= G[j].outDegree))
 			{
-				if( vector_compare(g[i].outOFneighbour,G[j].outOFneighbour)  && vector_compare(g[i].inOFneighbour,G[j].inOFneighbour))
+				if(g[i].inDegree <=20 && G[j].inDegree<=40 && g[i].outDegree <= 20 && G[j].outDegree<=40 )
 				{
-					matrix[i][j] = 1;
+					if( vector_compare(g[i].outOFneighbour,G[j].outOFneighbour)  && vector_compare(g[i].inOFneighbour,G[j].inOFneighbour) 
+						&& vector_compare(g[i].addOFneighbour,G[j].addOFneighbour))
+					{
+						matrix[i][j] = 1;
+					}
 				}
+				else
+					matrix[i][j] = 1;
 			}
 		}
 	}
@@ -175,7 +197,7 @@ void formMinisatInput(string filename)
 	ofstream outfile(filename);
 	vector<int> onewalej;
 	stringstream ss;
-	int cno=0;
+	long cno=0;
 	for (int i=0; i<num_nodes_g; i++)
 		for (int j=0; j<num_nodes_G; j++)
 			if (matrix[i][j] == 0)
@@ -221,12 +243,15 @@ void formMinisatInput(string filename)
 	}
 
 	// edge constraints:
+	int flag1=0, flag2 = 0;
+	vector<int> V1,V2,v1,v2;
 	for (int i1=0; i1<num_nodes_g; i1++)
 		for (int i2=i1+1; i2<num_nodes_g; i2++)
 		{
-			vector<int> v1 = g[i1].adjList;
-			vector<int> v2 = g[i2].adjList;
-			int flag1=0, flag2 = 0;
+			v1 = g[i1].adjList;
+			v2 = g[i2].adjList;
+			flag1=0; 
+			flag2 = 0;
 			if (find(v1.begin(), v1.end(), i2) != v1.end())
 				flag1=1;
 			if (find(v2.begin(), v2.end(), i1) != v2.end())
@@ -244,8 +269,8 @@ void formMinisatInput(string filename)
 						continue; 		// will be handled by earlier constraints
 					if (matrix[i2][j2]==0)
 						continue;
-					vector<int> V1 = G[j1].adjList;
-					vector<int> V2 = G[j2].adjList;
+					V1 = G[j1].adjList;
+					V2 = G[j2].adjList;
 
 					int flag3=0, flag4=0;
 					if (find(V1.begin(), V1.end(), j2) != V1.end())
