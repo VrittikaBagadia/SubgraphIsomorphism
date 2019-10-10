@@ -155,6 +155,7 @@ void formMinisatInput(string filename)
 	memset(matrix, 0, sizeof(int)*num_nodes_G*num_nodes_g);
 	unordered_map<int,Node>::iterator it1;
 	unordered_map<int,Node>::iterator it2;
+	// int ctr=0;
 	for (int i=0; i<num_nodes_g; i++)
 	{
 		it1 = g.find(i);
@@ -181,11 +182,76 @@ void formMinisatInput(string filename)
 					{
 						matrix[i][j] = 1;
 					}
+					// else
+					// {
+					// 	ctr++;
+					// }
 				}
 				else
 					matrix[i][j] = 1;
 			}
 		}
+	}
+	// cout<<ctr<<"!!!!!!!!!!!!!!!!!!!!";
+	int ig=0,iG=0;
+	vector<int> isolated_g,isolated_G;
+	for (int i = 0; i < num_nodes_g; ++i)
+	{
+		if (g[i].inDegree==0 && g[i].outDegree ==0 )
+		{
+			isolated_g.push_back(i);
+			// ig++;
+		}
+	}
+	for (int i = 0; i < num_nodes_G; ++i)
+	{
+		if (G[i].inDegree==0 && G[i].outDegree ==0 )
+		{
+			isolated_G.push_back(i);
+			// iG++;
+		}
+	}
+	ig=isolated_g.size();
+	iG=isolated_G.size();
+	// cout<<ig<<" "<<iG;
+	ofstream outfile(filename);
+	if(ig>iG)
+	{
+		// for (int ii = 0; ii < iG; ++ii)
+		// {
+		// 	for (int i = 0; i < num_nodes_g ; ++i)
+		// 	{
+		// 		matrix[i][isolated_G[ii]]=0;
+		// 	}
+		// 	for (int i = 0; i < num_nodes_G ; ++i)
+		// 	{
+		// 		matrix[isolated_g[ii]][i]=0;
+		// 	}
+		// 	matrix[isolated_g[ii]][isolated_G[ii]]=1;
+		// }
+		outfile<<"p cnf 1 2\n1 0\n-1 0\n";
+		outfile.close();
+
+		ofstream filetmp("temp.txt");
+		filetmp<<num_nodes_G;
+		filetmp.close();
+		return;
+	}
+	else
+	{
+		for (int ii = 0; ii < ig; ++ii)
+		{
+			for (int i = 0; i < num_nodes_g ; ++i)
+			{
+				matrix[i][isolated_G[ii]]=0;
+			}
+			for (int i = 0; i < num_nodes_G ; ++i)
+			{
+				matrix[isolated_g[ii]][i]=0;
+			}
+			matrix[isolated_g[ii]][isolated_G[ii]]=1;
+		}
+
 	}
 	// cout<<"PRINT MATRIX\n";
 	// for (int i=0; i<num_nodes_g; i++)
@@ -194,10 +260,10 @@ void formMinisatInput(string filename)
 	// 		cout<<matrix[i][j]<<" ";
 	// 	cout<<endl;
 	// }
-	ofstream outfile(filename);
+	
 	vector<int> onewalej;
 	stringstream ss;
-	long cno=0;
+	unsigned long cno=0;
 	for (int i=0; i<num_nodes_g; i++)
 		for (int j=0; j<num_nodes_G; j++)
 			if (matrix[i][j] == 0)
@@ -295,6 +361,11 @@ void formMinisatInput(string filename)
 	outfile<<"p cnf "<<(num_nodes_G*num_nodes_g)<<" "<<cno<<endl;
 	outfile<<ss.rdbuf();
 	outfile.close();
+
+	ofstream filetmp("temp.txt");
+	filetmp<<num_nodes_G;
+	filetmp.close();
+
 }
 
 int main(int argc, char const *argv[])
