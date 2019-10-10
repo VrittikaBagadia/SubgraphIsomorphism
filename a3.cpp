@@ -1,16 +1,10 @@
 #include <fstream>
-#include <iostream>
-#include <stdio.h>      
-#include <time.h>   
+#include <iostream>  
 #include <vector> 
-#include <math.h>
 #include <algorithm>
-#include <random> 
-#include <map>
 #include <string.h>
 #include <unordered_map> 
-#include <iomanip>
-#include <time.h>
+#include <sstream>
 using namespace std;
 
 struct Node
@@ -20,8 +14,8 @@ struct Node
 	int outDegree=0;
 };
 
-map<int,Node> g;	// smaller graph
-map<int,Node> G;	// larger graph
+unordered_map<int,Node> g;	// smaller graph
+unordered_map<int,Node> G;	// larger graph
 int num_nodes_g=0, num_nodes_G=0;		// number of nodes in smaller and larger graphs resp
 
 int variable(int x, int y)
@@ -33,7 +27,7 @@ void takeInput(string filename)
 {
 	ifstream infile(filename);
 	int n1,n2;
-	map<int,Node>::iterator it;
+	unordered_map<int,Node>::iterator it;
 	while (true)
 	{
 		infile>>n1>>n2;
@@ -143,24 +137,24 @@ void formMinisatInput(string filename)
 {
 	int matrix[num_nodes_g][num_nodes_G];
 	memset(matrix, 0, sizeof(int)*num_nodes_G*num_nodes_g);
-	map<int,Node>::iterator it1;
-	map<int,Node>::iterator it2;
+	unordered_map<int,Node>::iterator it1;
+	unordered_map<int,Node>::iterator it2;
 	for (int i=0; i<num_nodes_g; i++)
 	{
 		it1 = g.find(i);
-		if (it1 == g.end())
-		{
-			cout<<"How ?????????????????  SHOULDN't HAPPEN "<<endl;
-			continue;
-		}
+		// if (it1 == g.end())
+		// {
+		// 	cout<<"How ?????????????????  SHOULDN't HAPPEN "<<endl;
+		// 	continue;
+		// }
 		for (int j=0; j<num_nodes_G; j++)
 		{
 			it2 = G.find(j);
-			if (it2 == G.end())
-			{
-				cout<<"........How ?????????????????  SHOULDN't HAPPEN "<<endl;
-				continue;
-			}
+			// if (it2 == G.end())
+			// {
+			// 	cout<<"........How ?????????????????  SHOULDN't HAPPEN "<<endl;
+			// 	continue;
+			// }
 			// both i and j present in g and G resp.
 			if ((g[i].inDegree <= G[j].inDegree) && (g[i].outDegree <= G[j].outDegree))
 			{
@@ -180,22 +174,33 @@ void formMinisatInput(string filename)
 	// }
 	ofstream outfile(filename);
 	vector<int> onewalej;
+	stringstream ss;
+	int cno=0;
+	for (int i=0; i<num_nodes_g; i++)
+		for (int j=0; j<num_nodes_G; j++)
+			if (matrix[i][j] == 0)
+			{
+				ss<<"-"<<to_string(variable(i,j))<<" 0\n";
+				cno++;
+			}
 	for (int i=0; i<num_nodes_g; i++)
 	{
 		for (int j=0; j<num_nodes_G; j++)
 			if (matrix[i][j] == 1)
 			{
-				outfile<<to_string(variable(i,j))<< " ";
+				ss<<to_string(variable(i,j))<< " ";
 				onewalej.push_back(j);
 			}
-		if (onewalej.size() == 0)
-			cout<<"HIiiiiiii-----------------------------------------"<<endl;
-		outfile<<"0\n";		// alteast one 1 in ith row
+		ss<<"0\n";		// alteast one 1 in ith row
+		cno++;
 
 		// no two 1's in any row wale constraints:
 		for (int j1=0; j1<onewalej.size(); j1++)
 			for (int j2=j1+1; j2<onewalej.size(); j2++)
-				outfile<<"-"<<to_string(variable(i,onewalej[j1]))<<" -"<<to_string(variable(i,onewalej[j2]))<<" 0\n";
+			{
+				ss<<"-"<<to_string(variable(i,onewalej[j1]))<<" -"<<to_string(variable(i,onewalej[j2]))<<" 0\n";
+				cno++;
+			}
 		onewalej.clear();
 	}
 
@@ -208,7 +213,10 @@ void formMinisatInput(string filename)
 				onewalei.push_back(i);
 		for (int i1=0; i1<onewalei.size(); i1++)
 			for (int i2=i1+1; i2<onewalei.size(); i2++)
-				outfile<<"-"<<to_string(variable(onewalei[i1],j))<<" -"<<to_string(variable(onewalei[i2],j))<<" 0\n";
+			{
+				ss<<"-"<<to_string(variable(onewalei[i1],j))<<" -"<<to_string(variable(onewalei[i2],j))<<" 0\n";
+				cno++;
+			}
 		onewalei.clear();
 	}
 
@@ -246,7 +254,10 @@ void formMinisatInput(string filename)
 						flag4 = 1;
 
 					if ((flag1 && !flag3) || (!flag1 && flag3) || (flag2 && !flag4) || (!flag2 && flag4))
-						outfile<<"-"<<to_string(variable(i1,j1))<<" -"<<to_string(variable(i2,j2))<<" 0\n"; // both not one
+					{
+						ss<<"-"<<to_string(variable(i1,j1))<<" -"<<to_string(variable(i2,j2))<<" 0\n"; // both not one
+						cno++;
+					}
 
 					// if ( flag1 && ( find(V1.begin(), V1.end(), j2) == V1.end()) ) 
 					// 	outfile<<"-"<<to_string(variable(i1,j1))<<" -"<<to_string(variable(i2,j2))<<" 0\n"; // both not zero
@@ -256,11 +267,8 @@ void formMinisatInput(string filename)
 				}
 			}
 		}
-
-	for (int i=0; i<num_nodes_g; i++)
-		for (int j=0; j<num_nodes_G; j++)
-			if (matrix[i][j] == 0)
-				outfile<<"-"<<to_string(variable(i,j))<<" 0\n";
+	outfile<<"p cnf "<<(num_nodes_G*num_nodes_g)<<" "<<cno<<endl;
+	outfile<<ss.rdbuf();
 	outfile.close();
 }
 
@@ -271,7 +279,7 @@ int main(int argc, char const *argv[])
 	takeInput(infilename);
 	formMinisatInput(outfilename);
 	// cout<<"LARGER GRAPH: \n";
-	// map<int, Node>::iterator itr; 
+	// unordered_map<int, Node>::iterator itr; 
 	// for (itr = G.begin(); itr != G.end(); ++itr) 
 	// { 
  //        cout << itr->first << '\t' << (itr->second).inDegree << " "<<(itr-> second).outDegree << '\n'; 
