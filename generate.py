@@ -16,7 +16,7 @@ G1edges = int(sys.argv[2]) # number of edges in larger graph
 G2nodes = int(sys.argv[3]) # number of nodes in smaller graph
 G2edges = int(sys.argv[4]) # number of edges in smaller graph
 
-guarantee_subgraph = True  # whether to deliberately make G2 a subgraph of G1
+guarantee_subgraph = False  # whether to deliberately make G2 a subgraph of G1
 allow_self_edges = False  # if true, a node can have an edge to itself
 print_digraph = False # if True, print in graphviz format for visualization
 
