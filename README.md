@@ -15,7 +15,8 @@ The mapping will map each node of G into a node id for G’. The first numbers o
 ```
 python generate.py n1 e1 n2 e2 > filename
 ```
-where n1,e1 are the number of nodes and edges in the bigger graph (G'), n2,e2 are the number of nodes and edges in the smaller graph (G). You can toggle the boolean flag 'guarantee_subgraph' to True to generate (G,G') where G is definitely a subgraph of G'
+where n1,e1 are the number of nodes and edges in the bigger graph (G'), n2,e2 are the number of nodes and edges in the smaller graph (G). You can toggle the boolean flag 'guarantee_subgraph' to True to generate (G,G') where G is definitely a subgraph of G'.
+
 2. To check whether a mapping (in the given output format) is valid , run
 ```
 python check.py test.input test.output
