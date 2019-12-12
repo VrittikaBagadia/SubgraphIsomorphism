@@ -1,5 +1,4 @@
-# SubgraphIsomorphism
-(Artificial Intelligence Course Assignment)
+# Subgraph Isomorphism: Graph Subset Mapping
 The subgraph isomorphism problem has been formulated and solved as a SAT problem using miniSat. 
 
 ### Problem Statement
@@ -13,26 +12,26 @@ The mapping will map each node of G into a node id for G’. The first numbers o
 
 ### Graphs Generation
 1. To generate an instance (G,G') and store the output in a file, run
-'''
+```
 python generate.py n1 e1 n2 e2 > filename
-'''
+```
 where n1,e1 are the number of nodes and edges in the bigger graph (G'), n2,e2 are the number of nodes and edges in the smaller graph (G). You can toggle the boolean flag 'guarantee_subgraph' to True to generate (G,G') where G is definitely a subgraph of G'
 2. To check whether a mapping (in the given output format) is valid , run
-'''
+```
 python check.py test.input test.output
-'''
+```
 where test.input is in the described input format, and test.output is in the described output format.
 
 ### Running the code
 1. To compile
-'''
+```
 ./compile.sh
-'''
+```
 
 2. To run
-'''
+```
 ./run.sh testgraph
-'''
+```
 This takes testgraph.graphs as input and outputs testgraph.mapping. It creates an intermediate testgraph.satinput which is fed into the minisat solver which outputs testgraph.satoutput, that is further processed to give the output mapping.
 
 
