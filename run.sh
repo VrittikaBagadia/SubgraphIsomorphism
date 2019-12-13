@@ -1,4 +1,4 @@
-./compile.sh
-./main1 Data/test
-minisat Data/test.satinput Data/test.satoutput
-./main2 Data/test Data/test.output
+time ./compile.sh
+time ./main1 test
+time ../minisat2.2.0/minisat/core/minisat test.satinput test.satoutput
+time ./main2 test test.mapping
